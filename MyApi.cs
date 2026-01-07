@@ -6,6 +6,8 @@ using System.Text.Json;
 using Azure.Storage.Queues;
 using Microsoft.Extensions.Configuration;
 using System.Text;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.OpenApi.Models;
 
 namespace Company.Function;
 
@@ -28,6 +30,9 @@ public class MyApi
     }
 
     [Function("Echo")]
+    [OpenApiOperation(operationId: "RunEcho", tags: new[] {"Echo"})]
+    [OpenApiParameter(name: "message", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The message to echo")]
+    [OpenApiResponseWithBody(statusCode: System.Net.HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(object))]
     public IActionResult RunEcho([HttpTrigger(AuthorizationLevel.Function, "get", Route="echo/{message}")] HttpRequest req, string message)
     {
         _logger.LogInformation("Echo function processed a request.");
@@ -43,6 +48,9 @@ public class MyApi
     }
 
     [Function("Echo2")]
+    [OpenApiOperation(operationId: "RunEcho2", tags: new[] {"Echo2"})]
+    [OpenApiParameter(name: "message", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The message to echo")]
+    [OpenApiResponseWithBody(statusCode: System.Net.HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(object))]
     public IActionResult RunEcho2([HttpTrigger(AuthorizationLevel.Function, "get", Route="echo2/{message}")] HttpRequest req, string message)
     {
         _logger.LogInformation("Echo function processed a request.");
@@ -52,6 +60,9 @@ public class MyApi
     }
 
     [Function("PushMessage")]
+    [OpenApiOperation(operationId: "RunPush", tags: new[] {"PushMessage"})]
+    [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(string), Description = "The message to push to the queue")]
+    [OpenApiResponseWithBody(statusCode: System.Net.HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(object))]
     public async Task<IActionResult> RunPush([HttpTrigger(AuthorizationLevel.Function, "post", Route="push")] HttpRequest req)
     {
         _logger.LogInformation("PushMessage function processed a request.");
@@ -77,8 +88,9 @@ public class MyApi
         return new OkObjectResult(new { message = "Added to queue", data = requestBody });
     }
 
-
     [Function("PopMessage")]
+    [OpenApiOperation(operationId: "RunPop", tags: new[] {"PopMessage"})]
+    [OpenApiResponseWithBody(statusCode: System.Net.HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(object))]
     public async Task<IActionResult> RunPop([HttpTrigger(AuthorizationLevel.Function, "get", Route="pop")] HttpRequest req)
     {
         _logger.LogInformation("PopMessage function processed a request.");
