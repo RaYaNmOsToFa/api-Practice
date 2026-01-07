@@ -55,21 +55,9 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          # This command tells APIM to re-scan the Function App for new/updated endpoints
-          az apim api import \
-            --resource-group $(resourceGroupName) \
-            --service-name $(apimInstanceName) \
-            --path '/v1' \
-            --specification-format OpenApi \
-            --specification-url "https://$(functionAppName).azurewebsites.net/api/swagger.json" \
-            --api-id $(apiId)
-    - task: AzureCLI@3
-      displayName: 'Sync APIM with Function App'
-      inputs:
-        azureSubscription: '$(azureServiceConnection)'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
+          echo "Waiting 30 seconds for Function App to warm up..."
+          sleep 30
+          
           az apim api import \
             --resource-group "$(resourceGroupName)" \
             --service-name "$(apimInstanceName)" \
