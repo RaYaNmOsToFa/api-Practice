@@ -13,7 +13,7 @@ stages:
   jobs:
   - job: BuildJob
     pool:
-      vmImage: 'Default'
+      vmImage: 'RAYANS_PC'
     steps:
     - task: ArchiveFiles@2
       inputs:
@@ -28,7 +28,7 @@ stages:
   jobs:
   - deployment: DeployFunction
     pool:
-      vmImage: 'Default'
+      vmImage: 'RAYANS_PC'
     environment: 'production'
     strategy:
       runOnce:
@@ -46,7 +46,7 @@ stages:
   jobs:
   - job: UpdateAPIM
     pool:
-      vmImage: 'Default'
+      vmImage: 'RAYANS_PC'
     steps:
     - task: AzureCLI@2
       displayName: 'Import Function App to APIM'
