@@ -1,19 +1,23 @@
 trigger:
-- main  # Trigger on every push to the main branch
+- main
 
 variables:
   azureServiceConnection: 'api-connection'
   functionAppName: 'api-practice'
   resourceGroupName: 'apipractice'
   apimInstanceName: 'api-manager-practice'
-  apiId: 'api-practice' # The name of the API inside APIM
+  apiId: 'api-practice'
+
+# We can define the pool at the top level to avoid repeating it in every job
+pool:
+  name: 'Default'
+  demands:
+    - Agent.Name -equals RAYANS_PC
 
 stages:
 - stage: Build
   jobs:
   - job: BuildJob
-    pool:
-      vmImage: 'RAYANS_PC'
     steps:
     - task: ArchiveFiles@2
       inputs:
@@ -27,8 +31,6 @@ stages:
 - stage: Deploy
   jobs:
   - deployment: DeployFunction
-    pool:
-      vmImage: 'RAYANS_PC'
     environment: 'production'
     strategy:
       runOnce:
@@ -45,8 +47,6 @@ stages:
   dependsOn: Deploy
   jobs:
   - job: UpdateAPIM
-    pool:
-      vmImage: 'RAYANS_PC'
     steps:
     - task: AzureCLI@2
       displayName: 'Import Function App to APIM'
