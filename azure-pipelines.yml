@@ -18,6 +18,8 @@ stages:
 - stage: Build
   jobs:
   - job: BuildJob
+    workspace: 
+      clean: all
     steps:
     - task: ArchiveFiles@2
       inputs:
@@ -36,7 +38,7 @@ stages:
       runOnce:
         deploy:
           steps:
-          - task: AzureFunctionApp@1
+          - task: AzureFunctionApp@2
             inputs:
               azureSubscription: '$(azureServiceConnection)'
               appType: 'functionAppLinux'
