@@ -1,0 +1,5 @@
+dotnet add package <name of package> #adds a package to the dotnet environment
+
+F1 -> Azurite: Start #this will start the local "Cloud" storage
+F5 -> this will run the code locally
+to publish to the cloud, go to the resources section in A section of the sidebar -> click on the + for resources -> 
