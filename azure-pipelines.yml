@@ -6,7 +6,7 @@ variables:
   functionAppName: 'api-practice'
   resourceGroupName: 'apipractice'
   apimInstanceName: 'api-manager-practice'
-  apiId: 'api-practice'
+  apiId: '/subscriptions/07adb306-0b43-4d3a-ad8f-2130490a2ba9/resourceGroups/apipractice/providers/Microsoft.Web/sites/api-practice'
 
 # We can define the pool at the top level to avoid repeating it in every job
 pool:

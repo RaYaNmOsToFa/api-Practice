@@ -47,11 +47,11 @@ public class MyApi
         return new OkObjectResult(response);
     }
 
-    [Function("Echo2")]
-    [OpenApiOperation(operationId: "RunEcho2", tags: new[] {"Echo2"})]
+    [Function("Echo3")]
+    [OpenApiOperation(operationId: "RunEcho3", tags: new[] {"Echo3"})]
     [OpenApiParameter(name: "message", In = ParameterLocation.Path, Required = true, Type = typeof(string), Description = "The message to echo")]
     [OpenApiResponseWithBody(statusCode: System.Net.HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(object))]
-    public IActionResult RunEcho2([HttpTrigger(AuthorizationLevel.Function, "get", Route="echo2/{message}")] HttpRequest req, string message)
+    public IActionResult RunEcho3([HttpTrigger(AuthorizationLevel.Function, "get", Route="echo2/{message}")] HttpRequest req, string message)
     {
         _logger.LogInformation("Echo function processed a request.");
         
