@@ -1,0 +1,79 @@
+trigger:
+- main  # Trigger on every push to the main branch
+
+variables:
+  azureServiceConnection: 'api-connection'
+  functionAppName: 'api-practice'
+  resourceGroupName: 'apipractice'
+  apimInstanceName: 'api-manager-practice'
+  apiId: 'api-practice' # The name of the API inside APIM
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+      artifact: drop
+
+- stage: Deploy
+  jobs:
+  - deployment: DeployFunction
+    pool:
+      vmImage: 'ubuntu-latest'
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureFunctionApp@1
+            inputs:
+              azureSubscription: '$(azureServiceConnection)'
+              appType: 'functionAppLinux'
+              appName: '$(functionAppName)'
+              package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
+
+- stage: SyncAPIM
+  dependsOn: Deploy
+  jobs:
+  - job: UpdateAPIM
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: AzureCLI@2
+      displayName: 'Import Function App to APIM'
+      inputs:
+        azureSubscription: '$(azureServiceConnection)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # This command tells APIM to re-scan the Function App for new/updated endpoints
+          az apim api import \
+            --resource-group $(resourceGroupName) \
+            --service-name $(apimInstanceName) \
+            --path '/v1' \
+            --specification-format OpenApi \
+            --specification-url "https://$(functionAppName).azurewebsites.net/api/swagger.json" \
+            --api-id $(apiId)
+    - task: AzureCLI@3
+      displayName: 'Sync APIM with Function App'
+      inputs:
+        azureSubscription: '$(azureServiceConnection)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az apim api import \
+            --resource-group "$(resourceGroupName)" \
+            --service-name "$(apimInstanceName)" \
+            --path "v1" \
+            --api-id "$(apiId)" \
+            --specification-format "OpenApiJson" \
+            --specification-url "https://$(functionAppName).azurewebsites.net/api/swagger.json"
